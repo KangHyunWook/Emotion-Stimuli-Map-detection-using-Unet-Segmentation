@@ -1,8 +1,8 @@
-from keras.layers import Input, Conv2D, BatchNormalization, Activation, Dropout, Conv2DTranspose
+from keras.layers import Input
 from keras.models import Model
 
 from sklearn.model_selection import train_test_split
-from keras.callbacks import ModelCheckpoint
+from keras.callbacks import ModelCheckpoint, EarlyStopping
 
 from models import getUnetOuput
 from utils import split_train_test, splitData
@@ -33,14 +33,8 @@ model = Model(inputs=[input_img], outputs=[outputs])
 
 model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
-model.fit(X_train, y_train, batch_size=32, epochs=30,
-            callbacks=[ModelCheckpoint('saved-unet-model.h5', monitor='loss', verbose=1, save_best_only=True, save_weights_only=True)])
-
-
-
-
-
-
-
-
-#
+model.fit(X_train, y_train,
+        validation_data=(X_test, y_test),
+        batch_size=32, epochs=30,
+            callbacks=[EarlyStopping(patience=10, verbose=1),
+            ModelCheckpoint('saved-unet-model.h5', monitor='loss', verbose=1, save_best_only=True, save_weights_only=True)])
