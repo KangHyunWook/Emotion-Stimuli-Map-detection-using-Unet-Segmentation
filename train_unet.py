@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from keras.callbacks import ModelCheckpoint
 
 from models import getUnetOuput
-from utils import preprocessData
+from utils import split_train_test, splitData
 
 import numpy as np
 import argparse
@@ -21,24 +21,11 @@ parser.add_argument('--mask-root', required = True)
 
 args = parser.parse_args()
 
-if not os.path.exists('X_train.npy'):
+#call splitData
+if not os.path.exists('train_files.txt'):
+    splitData(args.img_root, args.mask_root)
 
-    X_train, X_valid, X_test, y_train, y_valid, y_test = preprocessData(args)
-
-    np.save('X_train.npy', X_train)
-    np.save('X_valid.npy', X_valid)
-    np.save('X_test.npy', X_test)
-
-    np.save('y_train.npy', y_train)
-    np.save('y_valid.npy', y_valid)
-    np.save('y_test.npy', y_test)
-
-X_train=np.load('X_train.npy')
-X_valid=np.load('X_valid.npy')
-X_test=np.load('X_test.npy')
-y_train=np.load('y_train.npy')
-y_valid=np.load('y_valid.npy')
-y_test=np.load('y_test.npy')
+X_train, X_test, y_train, y_test = split_train_test('train_files.txt', 'test_files.txt')
 
 outputs = getUnetOuput(input_img)
 
